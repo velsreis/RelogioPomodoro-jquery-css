@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ptbr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro</title>
+    <link rel="shortcut icon" type="image/x-icon" href="data/pomodoro.png">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<style>
+    * {
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    body {
+        background-color: #f0e793;
+        background-image: url("data/pomodoro.png");
+        background-size: 200px;
+    }
+
+    .max-width {
+
+        width: 700px;
+        margin-top: 100px;
+        margin-left: auto;
+        margin-right: auto;
+        box-sizing: border-box;
+        text-align: center;
+        border: transparent;
+        border-color: #274360;
+        border-radius: 3%;
+        background-color: #274260f5;
+
+    }
+
+    h1 {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 100px;
+        margin-top: 10px;
+        color: rgb(194, 194, 194);
+    }
+
+    h2 {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 40px;
+        margin-top: 10px;
+        color: rgb(194, 194, 194);
+    }
+
+    /*--------------------------------------------------*/
+
+
+    .btn {
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+        border: 2px solid #e74c3c;
+        border-radius: 0.6em;
+        color: #e74c3c;
+        cursor: pointer;
+
+        -webkit-align-self: center;
+        -ms-flex-item-align: center;
+        align-self: center;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1;
+        margin: 20px;
+        padding: 1.2em 2.8em;
+        text-decoration: none;
+        text-align: center;
+        text-transform: uppercase;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+    }
+
+    .btn:hover,
+    .btn:focus {
+        color: #fff;
+        outline: 0;
+    }
+
+    .iniciar {
+        border-color: #0dca2c;
+        color: #fff;
+        background-image: -webkit-linear-gradient(45deg, #0dca2c 50%, transparent 50%);
+        background-image: linear-gradient(45deg, #0dca2c 50%, transparent 50%);
+        background-position: 100%;
+        background-size: 400%;
+        -webkit-transition: background 300ms ease-in-out;
+        transition: background 300ms ease-in-out;
+    }
+
+    .iniciar:hover {
+        background-position: 0;
+    }
+
+
+    .pausar {
+        border-color: #f1c40f;
+
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        -webkit-transition: color 150ms ease-in-out;
+        transition: color 150ms ease-in-out;
+    }
+
+    .pausar:after {
+        content: '';
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 50%;
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+        width: 0;
+        height: 100%;
+        background: #f1c40f;
+        z-index: -1;
+        -webkit-transition: width 150ms ease-in-out;
+        transition: width 150ms ease-in-out;
+    }
+
+    .pausar:hover {
+        color: #fff;
+    }
+
+    .pausar:hover:after {
+        width: 110%;
+    }
+
+    .parar {
+        border-color: #f1310f;
+        color: #fff;
+
+        background-image: -webkit-linear-gradient(45deg, #f1310f 50%, transparent 50%);
+
+        background-image: linear-gradient(45deg, #f1310f 50%, transparent 50%);
+        background-position: 100%;
+        background-size: 400%;
+        -webkit-transition: background 300ms ease-in-out;
+        transition: background 300ms ease-in-out;
+    }
+
+    .parar:hover {
+        background-position: 0;
+    }
+
+    /*--------------------------------------------------*/
+    input {
+        margin-top: 15px;
+        margin-inline: 25px;
+        padding: 8px;
+        border: none;
+        font-family: 'Segoe UI';
+
+        font-size: 20px;
+        transition: all .5s;
+        cursor: pointer;
+        border-radius: 15px;
+        background-color: rgb(132, 176, 233);
+    }
+
+    h2 {
+        display: inline-block;
+    }
+</style>
+
+<body>
+
+    <div class="max-width">
+        <h2 id="mostrarTrab">25</h2>
+        <input class="input timeT" id="time1" name="time1" type="text" maxlength="2" size="1">
+        <input class="input timeI" id="time2" name="time2" type="text" maxlength="2" size="1">
+        <h2 id="mostrarInt">15</h2>
+        <br>
+        <button onclick="iniciar();" class="btn iniciar">Iniciar</button>
+        <button onclick="pausar();" class="btn pausar">Pausar</button>
+        <button onclick="parar();" class="btn parar">Parar</button>
+        <br>
+
+
+        <h1 id="counter">00:00:00</h1>
+        <h2>Intervalo</h2>
+        <h1 id="intervalo">00:00</h1>
+    </div>
+    <audio id="audio" src="data/y2mate.com - Som de BIP.mp3.webm"></audio>
+    <script src="pomo.js"></script>
+
+</body>
+<script>
+    //limitar input text a apenas numeros jquery
+    $(document).ready(function () {
+        $(".input").keydown(function (e) {
+            // Permitir: backspace, delete, tab, escape, enter
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Permitir: Ctrl+A
+                (e.keyCode == 65 && e.ctrlKey === true) ||
+                // Permitir: Ctrl+C
+                (e.keyCode == 67 && e.ctrlKey === true) ||
+                // Permitir: Ctrl+X
+                (e.keyCode == 88 && e.ctrlKey === true) ||
+                // Permitir: home, end, left, right
+                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                // deixe acontecer, não faça nada
+                return;
+            }
+            //Certifique-se de que é um número e pare o pressionamento de tecla
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+
+</html>
